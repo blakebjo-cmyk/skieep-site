@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skieep | No Phone. No Charging. Just Recovery.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,700;1,900&family=Barlow+Condensed:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:    #1B2A3B;
+            --navy-dk: #0F1A26;
+            --orange:  #E8641A;
+            --orange-lt: #F07A38;
+            --snow:    #F4F6F7;
+            --ice:     #D8E6EC;
+            --slate:   #4A6070;
+            --white:   #FFFFFF;
+            --mid:     #7A8E99;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Barlow', sans-serif; background: var(--snow); color: var(--navy); overflow-x: hidden; }
+
+        .container { max-width: 1320px; margin: 0 auto; padding: 0 48px; }
+        @media (max-width: 768px) { .container { padding: 0 24px; } }
+
+        .label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--orange);
+        }
+        .label::before { content: ''; display: block; width: 28px; height: 2px; background: var(--orange); flex-shrink: 0; }
+
+        /* ── ANNOUNCEMENT BAR ── */
+        .bar { background: var(--navy-dk); color: var(--ice); text-align: center; padding: 11px 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+        .bar span { color: var(--orange); }
+
+        /* ── NAV ── */
+        nav { position: sticky; top: 0; z-index: 200; background: rgba(15,26,38,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+        .nav-logo { height: 44px; width: auto; filter: none; border-radius: 6px; }
+        .nav-links { display: flex; gap: 40px; list-style: none; }
+        .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; transition: color 0.2s; }
+        .nav-links a:hover { color: white; }
+        .nav-cta { background: var(--orange); color: white; text-decoration: none; padding: 12px 30px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; transition: background 0.2s, transform 0.15s; display: inline-block; }
+        .nav-cta:hover { background: var(--orange-lt); transform: translateY(-1px); }
+        @media (max-width: 820px) { .nav-links { display: none; } }
+
+        /* ── HERO ── */
+        .hero { background: var(--navy-dk); min-height: 94vh; display: flex; flex-direction: column; justify-content: flex-end; position: relative; overflow: hidden; }
+        .hero-mountain { position: absolute; inset: 0; z-index: 0; }
+        .hero-mountain svg { width: 100%; height: 100%; }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(15,26,38,0.2) 0%, rgba(15,26,38,0) 35%, rgba(15,26,38,0.8) 75%, rgba(15,26,38,1) 100%),
+                        linear-gradient(to right, rgba(15,26,38,0.65) 0%, transparent 65%);
+            z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; padding-bottom: 80px; padding-top: 80px; }
+        .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 11vw, 160px); line-height: 0.9; color: white; letter-spacing: 0.02em; margin-bottom: 28px; }
+        .hero h1 .block { display: block; }
+        .hero h1 .stroke { -webkit-text-stroke: 2px rgba(255,255,255,0.5); color: transparent; }
+        .hero h1 .orange { color: var(--orange); }
+        .hero-eyebrow { margin-bottom: 20px; }
+        .hero-sub { font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.6); max-width: 460px; line-height: 1.75; margin-bottom: 40px; }
+        .hero-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+
+        .btn-primary { background: var(--orange); color: white; text-decoration: none; padding: 16px 40px; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; transition: all 0.2s; display: inline-block; }
+        .btn-primary:hover { background: var(--orange-lt); transform: translateY(-2px); }
+        .btn-ghost { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.25); padding-bottom: 2px; transition: color 0.2s, border-color 0.2s; }
+        .btn-ghost:hover { color: white; border-color: white; }
+
+        .hero-stats { display: flex; gap: 0; margin-top: 64px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+        .hero-stat { padding: 28px 44px 0 0; margin-right: 4px; border-top: 2px solid transparent; transition: border-color 0.3s; }
+        .hero-stat:hover { border-top-color: var(--orange); }
+        .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: white; letter-spacing: 0.04em; line-height: 1; }
+        .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 4px; }
+
+        /* ── HOW IT WORKS ── */
+        .how { background: var(--navy-dk); padding: 130px 0; position: relative; overflow: hidden; }
+        .how::before { content: ''; position: absolute; bottom: 0; right: 0; width: 50%; height: 100%; background: radial-gradient(ellipse at bottom right, rgba(232,100,26,0.04) 0%, transparent 70%); pointer-events: none; }
+        .how-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 80px; flex-wrap: wrap; gap: 24px; }
+        .how h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 6vw, 88px); color: white; letter-spacing: 0.04em; line-height: 0.92; }
+        .how h2 em { color: var(--orange); font-style: normal; }
+        .how-sub { font-size: 15px; color: rgba(255,255,255,0.4); max-width: 300px; line-height: 1.65; font-weight: 300; }
+
+        .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(255,255,255,0.06); }
+        @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+
+        .step { background: var(--navy-dk); padding: 52px 44px; position: relative; overflow: hidden; transition: background 0.3s; }
+        .step::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--orange); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+        .step:hover { background: #141F2D; }
+        .step:hover::after { transform: scaleX(1); }
+        .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 100px; color: rgba(255,255,255,0.03); line-height: 1; position: absolute; top: 16px; right: 24px; }
+        .step-icon { width: 52px; height: 52px; background: rgba(232,100,26,0.12); border: 1px solid rgba(232,100,26,0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 28px; }
+        .step-icon svg { width: 24px; height: 24px; color: var(--orange); }
+        .step-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; color: var(--orange); text-transform: uppercase; margin-bottom: 12px; }
+        .step h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; color: white; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; }
+        .step p { color: rgba(255,255,255,0.4); font-size: 14px; line-height: 1.75; font-weight: 300; }
+
+        /* ── TECH ── */
+        .tech { background: var(--snow); padding: 130px 0; }
+        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+        @media (max-width: 960px) { .tech-grid { grid-template-columns: 1fr; gap: 60px; } }
+
+        .tech h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 6vw, 80px); line-height: 0.92; color: var(--navy); letter-spacing: 0.03em; margin-bottom: 24px; }
+        .tech h2 em { color: var(--orange); font-style: normal; }
+        .tech-intro { font-size: 16px; font-weight: 300; color: var(--slate); line-height: 1.75; margin-bottom: 52px; max-width: 420px; }
+
+        .spec-row { display: flex; align-items: flex-start; gap: 20px; padding: 22px 0; border-bottom: 1px solid rgba(27,42,59,0.08); }
+        .spec-row:first-child { border-top: 1px solid rgba(27,42,59,0.1); }
+        .spec-icon { flex-shrink: 0; width: 40px; height: 40px; background: rgba(232,100,26,0.08); border: 1px solid rgba(232,100,26,0.2); display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+        .spec-icon svg { width: 18px; height: 18px; color: var(--orange); }
+        .spec-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange); margin-bottom: 5px; }
+        .spec-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; color: var(--navy); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+        .spec-desc { font-size: 13px; color: var(--slate); line-height: 1.65; font-weight: 300; }
+
+        .spec-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 52px; }
+        .pill { background: var(--navy); color: var(--ice); padding: 9px 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; cursor: default; }
+        .pill:hover { background: var(--orange); border-color: var(--orange); color: white; }
+
+        /* Tech diagram card */
+        .tech-card { background: var(--navy-dk); overflow: hidden; }
+        .tech-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; filter: brightness(0.85); }
+
+        .tech-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.05); }
+        .tech-cell { background: var(--navy-dk); padding: 20px 22px; }
+        .cell-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: var(--orange); text-transform: uppercase; margin-bottom: 6px; }
+        .cell-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: white; text-transform: uppercase; margin-bottom: 5px; }
+        .cell-desc { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55; }
+
+        .tech-mount { padding: 20px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; gap: 16px; align-items: center; }
+        .mount-check { flex-shrink: 0; width: 36px; height: 36px; background: var(--orange); display: flex; align-items: center; justify-content: center; }
+        .mount-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: white; text-transform: uppercase; letter-spacing: 0.04em; }
+        .mount-desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+        /* ── BANNER ── */
+        .banner { background: var(--navy-dk); padding: 100px 0; position: relative; overflow: hidden; text-align: center; }
+        .banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(232,100,26,0.07) 0%, transparent 70%); }
+        .banner h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 7vw, 100px); color: white; letter-spacing: 0.06em; line-height: 0.9; position: relative; z-index: 1; }
+        .banner h2 span { color: var(--orange); }
+        .banner p { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.4); margin-top: 20px; letter-spacing: 0.05em; position: relative; z-index: 1; }
+
+        /* ── SHOP ── */
+        .shop { background: white; padding: 130px 0; }
+        .shop-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 72px; flex-wrap: wrap; gap: 24px; }
+        .shop h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px,6vw,88px); letter-spacing: 0.04em; line-height: 0.92; color: var(--navy); }
+        .shop h2 em { color: var(--orange); font-style: normal; }
+        .ship-badge { background: var(--navy-dk); color: var(--ice); padding: 10px 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+
+        .products { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+        @media (max-width: 768px) { .products { grid-template-columns: 1fr; } }
+
+        .product-card { border: 1px solid rgba(27,42,59,0.12); transition: transform 0.3s ease, box-shadow 0.3s ease; background: white; position: relative; }
+        .product-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(27,42,59,0.12); }
+        .product-card.featured { border: 2px solid var(--navy); }
+        .product-flag { position: absolute; top: 0; left: 0; background: var(--orange); color: white; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 7px 16px; z-index: 2; }
+        .product-flag.navy { background: var(--navy); }
+
+        .product-img-wrap { background: #E8EFF3; aspect-ratio: 4/3; overflow: hidden; position: relative; }
+        .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transition: transform 0.6s ease; }
+        .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+
+        .product-info { padding: 32px 32px 36px; border-top: 1px solid rgba(27,42,59,0.08); }
+        .product-name { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.05em; color: var(--navy); margin-bottom: 4px; }
+        .product-contents { font-size: 13px; color: var(--mid); margin-bottom: 6px; line-height: 1.5; }
+        .product-pricing { display: flex; align-items: baseline; gap: 14px; margin: 20px 0 24px; flex-wrap: wrap; }
+        .price-new { font-family: 'Bebas Neue', sans-serif; font-size: 44px; color: var(--navy); letter-spacing: 0.03em; line-height: 1; }
+        .price-old { font-size: 16px; color: rgba(27,42,59,0.3); text-decoration: line-through; }
+        .price-save { background: var(--orange); color: white; font-size: 10px; font-weight: 700; padding: 4px 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* ── FOOTER ── */
+        footer { background: var(--navy-dk); padding: 60px 0 36px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .footer-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 28px; }
+        .footer-logo { height: 40px; width: auto; filter: none; border-radius: 4px; opacity: 0.85; }
+        .footer-links { display: flex; gap: 32px; list-style: none; }
+        .footer-links a { color: rgba(255,255,255,0.3); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; transition: color 0.2s; }
+        .footer-links a:hover { color: white; }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; flex-wrap: wrap; gap: 12px; }
+        .footer-copy { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 0.12em; text-transform: uppercase; }
+        .footer-tagline { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; }
+
+        /* ── REVEAL ── */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.75s ease, transform 0.75s ease; }
+        .reveal.up { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="bar"><span>⚡ Launch Special</span> &nbsp;—&nbsp; Better & Cheaper Than an AirTag &nbsp;·&nbsp; Shipping Fall 2026</div>
+
+<nav>
+    <div class="container nav-inner">
+        <img src="logo.png" alt="Skieep" class="nav-logo">
+        <ul class="nav-links">
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#tech">Technology</a></li>
+            <li><a href="#shop">Shop</a></li>
+        </ul>
+        <a href="#shop" class="nav-cta">Pre-Order Now</a>
+    </div>
+</nav>
+
+<!-- HERO with hand-drawn SVG mountain panorama -->
+<section class="hero">
+    <div class="hero-mountain">
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#060E18"/>
+                    <stop offset="45%" stop-color="#0D1E30"/>
+                    <stop offset="100%" stop-color="#152540"/>
+                </linearGradient>
+                <linearGradient id="snowcap" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#E8F2F6"/>
+                    <stop offset="100%" stop-color="#B8CDD5"/>
+                </linearGradient>
+                <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1A3050"/>
+                    <stop offset="100%" stop-color="#0A1520"/>
+                </linearGradient>
+                <radialGradient id="glow" cx="72%" cy="18%" r="25%">
+                    <stop offset="0%" stop-color="rgba(200,225,240,0.1)"/>
+                    <stop offset="100%" stop-color="transparent"/>
+                </radialGradient>
+            </defs>
+
+            <rect width="1440" height="900" fill="url(#sky)"/>
+            <ellipse cx="1040" cy="140" rx="320" ry="240" fill="url(#glow)"/>
+
+            <!-- Stars -->
+            <g fill="white">
+                <circle cx="90" cy="55" r="1.3" opacity="0.7"/><circle cx="210" cy="28" r="0.9" opacity="0.5"/>
+                <circle cx="370" cy="72" r="1.5" opacity="0.55"/><circle cx="490" cy="38" r="1.1" opacity="0.65"/>
+                <circle cx="620" cy="82" r="0.8" opacity="0.5"/><circle cx="750" cy="44" r="1.4" opacity="0.7"/>
+                <circle cx="870" cy="66" r="1" opacity="0.6"/><circle cx="980" cy="30" r="1.2" opacity="0.5"/>
+                <circle cx="1100" cy="85" r="0.9" opacity="0.65"/><circle cx="1220" cy="50" r="1.3" opacity="0.6"/>
+                <circle cx="1350" cy="78" r="1.1" opacity="0.5"/><circle cx="145" cy="118" r="0.8" opacity="0.4"/>
+                <circle cx="295" cy="104" r="1" opacity="0.55"/><circle cx="445" cy="128" r="0.7" opacity="0.45"/>
+                <circle cx="575" cy="108" r="1.2" opacity="0.5"/><circle cx="710" cy="135" r="0.9" opacity="0.4"/>
+                <circle cx="840" cy="115" r="1.1" opacity="0.6"/><circle cx="1010" cy="140" r="0.8" opacity="0.45"/>
+                <circle cx="1160" cy="122" r="1" opacity="0.5"/><circle cx="1310" cy="100" r="0.7" opacity="0.4"/>
+            </g>
+
+            <!-- Far hazy peaks -->
+            <polygon points="0,530 90,400 150,450 240,355 320,410 410,320 500,385 600,295 700,370 790,285 880,350 980,265 1080,330 1170,250 1260,315 1360,245 1440,295 1440,900 0,900"
+                fill="#0E1E2E" opacity="0.5"/>
+
+            <!-- Mid-range peaks -->
+            <polygon points="0,610 70,470 130,530 200,415 280,490 370,380 450,460 540,360 630,450 720,340 810,430 900,325 990,415 1090,315 1180,395 1270,305 1360,380 1440,320 1440,900 0,900"
+                fill="url(#ridge)"/>
+
+            <!-- Snow caps — mid peaks -->
+            <polygon points="370,380 400,405 432,385 460,408 450,460 428,435 396,418 370,440" fill="url(#snowcap)" opacity="0.6"/>
+            <polygon points="540,360 568,382 598,362 624,386 630,450 605,420 570,402 540,424" fill="url(#snowcap)" opacity="0.55"/>
+            <polygon points="720,340 752,366 784,344 808,370 810,430 782,400 750,382 720,405" fill="url(#snowcap)" opacity="0.6"/>
+            <polygon points="900,325 930,350 962,330 988,355 990,415 960,385 928,367 898,390" fill="url(#snowcap)" opacity="0.55"/>
+            <polygon points="1090,315 1118,340 1148,320 1172,345 1180,395 1148,365 1116,350 1088,372" fill="url(#snowcap)" opacity="0.6"/>
+            <polygon points="1270,305 1296,330 1328,310 1350,335 1360,380 1325,350 1294,335 1268,358" fill="url(#snowcap)" opacity="0.5"/>
+
+            <!-- Foreground dark ridge -->
+            <polygon points="0,700 60,650 120,678 190,625 260,660 340,605 420,645 510,585 600,628 690,565 780,608 870,548 960,592 1050,532 1140,578 1230,520 1320,560 1400,510 1440,535 1440,900 0,900"
+                fill="#080E16"/>
+
+            <!-- Foreground snow patches -->
+            <polygon points="340,605 366,625 394,608 416,628 420,645 396,628 368,612 342,630" fill="url(#snowcap)" opacity="0.3"/>
+            <polygon points="510,585 538,607 568,589 590,612 600,628 572,608 540,592 510,614" fill="url(#snowcap)" opacity="0.25"/>
+            <polygon points="690,565 716,586 746,568 768,590 780,608 752,586 718,570 690,592" fill="url(#snowcap)" opacity="0.3"/>
+
+            <!-- Atmospheric horizon haze -->
+            <ellipse cx="720" cy="480" rx="700" ry="70" fill="rgba(25,60,95,0.12)"/>
+        </svg>
+    </div>
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-content">
+        <div class="label hero-eyebrow">World's First Standalone Ski Recovery System</div>
+        <h1>
+            <span class="block">Zero</span>
+            <span class="block stroke">Phone.</span>
+            <span class="block">Zero</span>
+            <span class="block orange">Charging.</span>
+        </h1>
+        <p class="hero-sub">
+            One glove-friendly button on your pack. Two pucks on your skis. A 110dB siren that cuts through 4 feet of snow. No app. No charging. Just recovery.
+        </p>
+        <div class="hero-actions">
+            <a href="#shop" class="btn-primary">Pre-Order Now</a>
+            <a href="#how" class="btn-ghost">See How It Works ↓</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="stat-num">110dB</div><div class="stat-label">Siren Power</div></div>
+            <div class="hero-stat"><div class="stat-num">4ft+</div><div class="stat-label">Snow Penetration</div></div>
+            <div class="hero-stat"><div class="stat-num">5yr</div><div class="stat-label">Sealed Battery</div></div>
+            <div class="hero-stat"><div class="stat-num">−40°</div><div class="stat-label">Cold Rated</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="how">
+    <div class="container">
+        <div class="how-header reveal">
+            <div>
+                <div class="label" style="margin-bottom:16px;">The Recovery Process</div>
+                <h2>From Buried<br>To <em>Found.</em></h2>
+            </div>
+            <p class="how-sub">Three steps. No phone required. Works at −40°C when your screen has given up.</p>
+        </div>
+        <div class="steps">
+            <div class="step reveal">
+                <div class="step-num">01</div>
+                <div class="step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <div class="step-tag">Stage 01</div>
+                <h4>The Ejection</h4>
+                <p>Your ski rips off mid-run and vanishes under 4 feet of powder. No visual. No time to pull out a phone. The mountain doesn't wait.</p>
+            </div>
+            <div class="step reveal" style="transition-delay:0.1s;">
+                <div class="step-num">02</div>
+                <div class="step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="step-tag">Stage 02</div>
+                <h4>The Command</h4>
+                <p>Press the physical button clipped to your pack strap. Proprietary 915MHz RF fires instantly — no Bluetooth dropouts, no app loading screens.</p>
+            </div>
+            <div class="step reveal" style="transition-delay:0.2s;">
+                <div class="step-num">03</div>
+                <div class="step-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    </svg>
+                </div>
+                <div class="step-tag">Stage 03</div>
+                <h4>The Recovery</h4>
+                <p>Follow the 110dB siren through the snowpack. Locate your ski in seconds. Snap back in and get back on the run.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section id="tech" class="tech">
+    <div class="container">
+        <div class="tech-grid">
+            <!-- Left: specs -->
+            <div class="reveal">
+                <div class="label" style="margin-bottom:16px;">The Technology</div>
+                <h2>Cold Kills<br><em>Phones.</em><br>Skieep<br>Doesn't.</h2>
+                <p class="tech-intro">
+                    Smartphones fail in cold weather — screens freeze, batteries die. Skieep is purpose-built hardware that's sealed, impact-resistant, and always on.
+                </p>
+                <div>
+                    <div class="spec-row">
+                        <div class="spec-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+                        </div>
+                        <div>
+                            <div class="spec-tag">Feature 01</div>
+                            <div class="spec-name">Dedicated Physical Remote</div>
+                            <div class="spec-desc">Large glove-friendly button rated to −40°C. Carabiner clip attaches to any pack strap. No app, no screen, no fumbling — press and go.</div>
+                        </div>
+                    </div>
+                    <div class="spec-row">
+                        <div class="spec-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </div>
+                        <div>
+                            <div class="spec-tag">Feature 02</div>
+                            <div class="spec-name">110dB Snow-Penetrating Siren</div>
+                            <div class="spec-desc">Central piezo buzzer fires 360° through acoustic side ports. Proprietary 915MHz RF signal penetrates 4+ feet of packed powder — far beyond Bluetooth range.</div>
+                        </div>
+                    </div>
+                    <div class="spec-row" style="border-bottom:none;">
+                        <div class="spec-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+                        </div>
+                        <div>
+                            <div class="spec-tag">Feature 03</div>
+                            <div class="spec-name">5-Year Sealed Battery</div>
+                            <div class="spec-desc">Thin-film lithium cell vacuum-potted inside a rugged nylon base plate. Zero charging. Zero maintenance. Mount it once at the start of the season — ski worry-free for years.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="spec-pills">
+                    <span class="pill">IP68 Waterproof</span>
+                    <span class="pill">−40°C Rated</span>
+                    <span class="pill">915MHz RF</span>
+                    <span class="pill">48mm Puck</span>
+                    <span class="pill">3M VHB Mount</span>
+                    <span class="pill">nRF52840 Chip</span>
+                </div>
+            </div>
+
+            <!-- Right: diagram card -->
+            <div class="reveal" style="transition-delay:0.15s;">
+                <div class="tech-card">
+                    <img class="tech-card-img" src="tech-diagram.jpg" alt="Skieep puck on ski with internals diagram">
+                    <div class="tech-grid-4">
+                        <div class="tech-cell">
+                            <div class="cell-tag">Shell</div>
+                            <div class="cell-title">Polycarbonate Cap</div>
+                            <div class="cell-desc">UV-resistant outer shell over a waterproof membrane. Handles ice, rock strikes, and mountain abuse.</div>
+                        </div>
+                        <div class="tech-cell">
+                            <div class="cell-tag">Processor</div>
+                            <div class="cell-title">nRF52840 SoC</div>
+                            <div class="cell-desc">Nordic Semi ultra-low-power chip. Drives 915MHz long-range RF with sub-millisecond response.</div>
+                        </div>
+                        <div class="tech-cell">
+                            <div class="cell-tag">Sound</div>
+                            <div class="cell-title">Piezo Buzzer</div>
+                            <div class="cell-desc">110dB output via 360° acoustic side ports — engineered to cut through compacted powder and snowpack.</div>
+                        </div>
+                        <div class="tech-cell">
+                            <div class="cell-tag">Power</div>
+                            <div class="cell-title">Thin-Film Li Battery</div>
+                            <div class="cell-desc">Vacuum-sealed 5-year cell. Works down to −40°C. Zero charging. Zero maintenance.</div>
+                        </div>
+                    </div>
+                    <div class="tech-mount">
+                        <div class="mount-check">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div>
+                            <div class="mount-title">3M VHB Industrial Adhesive — Sticks to Any Ski Surface</div>
+                            <div class="mount-desc">Rated to −40°C. Prep the surface, peel the tape, press for 30 seconds. Done in under a minute.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MOUNTAIN BANNER -->
+<div class="banner">
+    <h2>The Mountain<br>Doesn't Care<br>About Your <span>Battery.</span></h2>
+    <p>Skieep does. 5 years. Zero charging. Always ready.</p>
+</div>
+
+<!-- SHOP -->
+<section id="shop" class="shop">
+    <div class="container">
+        <div class="shop-header reveal">
+            <div>
+                <div class="label" style="margin-bottom:16px; color: var(--orange);">Select Your Kit</div>
+                <h2>Shop <em>Skieep</em></h2>
+            </div>
+            <div class="ship-badge">Shipping Fall 2026</div>
+        </div>
+        <div class="products">
+            <!-- Solo -->
+            <div class="product-card reveal">
+                <div class="product-flag">Launch Price</div>
+                <div class="product-img-wrap">
+                    <img src="SOLO skieep w remote.jpg" alt="Skieep Solo Pack">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Skieep Solo Pack</div>
+                    <div class="product-contents">1 SKIEEP Device · 1 Backcountry Remote · 2 3M VHB Adhesive Mounts · Installation Kit</div>
+                    <div class="product-pricing">
+                        <span class="price-new">$24.99</span>
+                        <span class="price-old">$34.99</span>
+                        <span class="price-save">Save 28%</span>
+                    </div>
+                    <div id="product-component-1773867670121"></div>
+                </div>
+            </div>
+            <!-- Twin -->
+            <div class="product-card featured reveal" style="transition-delay:0.1s;">
+                <div class="product-flag navy">Best Value</div>
+                <div class="product-img-wrap">
+                    <img src="SKIEEP Twin skieep w remote.jpg" alt="Skieep Twin Pack">
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Skieep Twin Pack</div>
+                    <div class="product-contents">2 SKIEEP Devices · 1 Dual-Button Remote · 4 3M VHB Adhesive Mounts · Installation Kit</div>
+                    <div class="product-pricing">
+                        <span class="price-new">$39.99</span>
+                        <span class="price-old">$59.99</span>
+                        <span class="price-save">Save 33%</span>
+                    </div>
+                    <div id="product-component-1773867712538"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-top">
+            <img src="logo.png" alt="Skieep" class="footer-logo">
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Warranty</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <span class="footer-copy">© 2026 Skieep Performance Lab · Provo, UT</span>
+            <span class="footer-tagline">No Phone. No Charging. Just Recovery.</span>
+        </div>
+    </div>
+</footer>
+
+<!-- Shopify -->
+<script type="text/javascript">
+(function(){
+  var scriptURL='https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+  function loadScript(){var s=document.createElement('script');s.async=true;s.src=scriptURL;document.head.appendChild(s);s.onload=init;}
+  if(window.ShopifyBuy&&window.ShopifyBuy.UI){init();}else{loadScript();}
+  function init(){
+    var client=ShopifyBuy.buildClient({domain:'yhuyjy-8e.myshopify.com',storefrontAccessToken:'5784990c92c258092831c7d3e957e93f'});
+    ShopifyBuy.UI.onReady(client).then(function(ui){
+      var styles={
+        "button":{
+          "font-family":"'Barlow',sans-serif","font-weight":"700","text-transform":"uppercase",
+          "letter-spacing":"0.14em","font-size":"12px","background-color":"#E8641A",
+          "border-radius":"0px","padding-top":"18px","padding-bottom":"18px","width":"100%",
+          ":hover":{"background-color":"#F07A38"}
+        }
+      };
+      var common={product:{styles:{product:{"@media (min-width:601px)":{"max-width":"100%","margin-left":"0"}},...styles},contents:{img:false,title:false,price:false}}};
+      ui.createComponent('product',{id:'9165076955352',node:document.getElementById('product-component-1773867670121'),moneyFormat:'%24%7B%7Bamount%7D%7D',options:{...common,product:{...common.product,text:{button:'Pre-Order Solo Pack — $24.99'}}}});
+      ui.createComponent('product',{id:'9165080101080',node:document.getElementById('product-component-1773867712538'),moneyFormat:'%24%7B%7Bamount%7D%7D',options:{...common,product:{...common.product,text:{button:'Pre-Order Twin Pack — $39.99'}}}});
+    });
+  }
+})();
+</script>
+
+<!-- Scroll reveal -->
+<script>
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('up');obs.unobserve(x.target);}}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
